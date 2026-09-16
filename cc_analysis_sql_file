@@ -1,0 +1,49 @@
+drop schema finance;
+create database finance;
+use finance;
+-- 1. Total number of transactions
+SELECT COUNT(*) AS total_transactions FROM cc_data;
+-- 2. Top 10 most frequent merchants
+SELECT merchant, COUNT(*) AS count FROM cc_data GROUP BY merchant ORDER BY count DESC LIMIT 10;
+-- 3. Average transaction amount by category
+SELECT category, ROUND(AVG(amt), 2) AS avg_amt FROM cc_data GROUP BY category ORDER BY avg_amt DESC;
+-- 4. Fraudulent transactions and percentage
+SELECT SUM(is_fraud) AS fraud_cases, ROUND(SUM(is_fraud)*100.0/COUNT(*), 2) AS fraud_pct FROM cc_data;
+
+-- 5. Join cc_data and location_data on cc_num
+SELECT c.trans_num, c.cc_num, l.lat, l.long FROM cc_data c JOIN location_data l ON c.cc_num = l.cc_num;
+
+-- 6. City with highest population
+SELECT city, state, city_pop FROM cc_data ORDER BY city_pop DESC LIMIT 1;
+
+-- 7. Earliest and latest transaction dates
+SELECT MIN(trans_date_trans_time) AS earliest, MAX(trans_date_trans_time) AS latest FROM cc_data;
+
+-- 8. Total amount spent across all transactions
+SELECT SUM(amt) AS total_spent FROM cc_data; 
+
+-- 9. Transactions per category
+SELECT category, COUNT(*) AS trans_count FROM cc_data GROUP BY category ORDER BY trans_count DESC;
+
+-- 10. Average transaction amount by gender
+SELECT gender, ROUND(AVG(amt), 2) AS avg_amt FROM cc_data GROUP BY gender;
+
+-- 11. Day of week with highest average transaction amount
+use finance;
+SELECT 
+    DAYNAME(STR_TO_DATE(trans_date_trans_time, '%Y-%m-%d %H:%i:%s')) AS day_of_week, 
+    ROUND(AVG(amt), 2) AS avg_amount 
+FROM cc_data 
+GROUP BY day_of_week 
+HAVING day_of_week IS NOT NULL
+ORDER BY avg_amount DESC 
+LIMIT 1;
+SELECT trans_date_trans_time FROM cc_data LIMIT 5;
+SELECT 
+    DAYNAME(STR_TO_DATE(trans_date_trans_time, '%d-%m-%Y %H:%i')) AS day_of_week, 
+    ROUND(AVG(amt), 2) AS avg_amount 
+FROM cc_data 
+GROUP BY day_of_week 
+HAVING day_of_week IS NOT NULL
+ORDER BY avg_amount DESC 
+LIMIT 1;
